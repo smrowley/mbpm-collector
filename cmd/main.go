@@ -3,27 +3,25 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	"mbpm-collector/pkg/domain"
-
 )
+
+var workflow domain.Workflow
 
 func getRoot(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("got / request\n")
-	io.WriteString(w, "This is my website!\n")
+	io.WriteString(w, fmt.Sprintf("Workflow: %v\n", workflow.GetId()))
 }
 
 func main() {
-	/*
-		mux := http.NewServeMux()
+	workflow = domain.NewWorkflow("SDLC")
 
-		mux.HandleFunc("/", getRoot)
+	mux := http.NewServeMux()
 
-		log.Fatal(http.ListenAndServe(":8080", mux))
-	*/
+	mux.HandleFunc("/", getRoot)
 
-	process := domain.NewProcess("SDLC")
-
-	fmt.Printf("Process: %v\n", process)
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
