@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"mbpm-collector/pkg/domain"
+	"mbpm-collector/internal/domain"
 )
 
 var workflow domain.Workflow
