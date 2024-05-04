@@ -9,9 +9,9 @@ import (
 type Instance interface {
 	GetId() uuid.UUID
 
-	Start()
+	Start(participant uuid.UUID, startTime time.Time)
 	Trace(participant uuid.UUID, timestamp time.Time)
-	Complete()
+	Complete(participant uuid.UUID, completionTime time.Time)
 }
 
 type trace struct {
@@ -31,18 +31,18 @@ func (i *instance) GetId() uuid.UUID {
 	return i.id
 }
 
-func (i *instance) Start() {
-	i.startTime = time.Now().UTC()
+func (i *instance) Start(participant uuid.UUID, startTime time.Time) {
+	i.startTime = startTime
 }
 
-func (i *instance) Complete() {
-	i.completionTime = time.Now().UTC()
+func (i *instance) Complete(participant uuid.UUID, completionTime time.Time) {
+	i.completionTime = completionTime
 }
 
-func (i *instance) Trace(participant uuid.UUID) {
+func (i *instance) Trace(participant uuid.UUID, timestamp time.Time) {
 	i.traces = append(i.traces, trace{
 		participant: participant,
-		traceTime:   time.Now().UTC(),
+		traceTime:   timestamp,
 	})
 }
 
