@@ -17,6 +17,7 @@ func getRoot(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	log.Println("Starting server")
 	workflow = domain.NewWorkflow("SDLC")
 
 	mux := http.NewServeMux()
