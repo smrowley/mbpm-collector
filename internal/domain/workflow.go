@@ -6,6 +6,10 @@ import (
 
 type WorkflowId uuid.UUID
 
+func (id WorkflowId) String() string {
+	return uuid.UUID(id).String()
+}
+
 type Workflow interface {
 	GetId() WorkflowId
 }

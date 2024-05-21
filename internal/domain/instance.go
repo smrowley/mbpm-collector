@@ -8,6 +8,10 @@ import (
 
 type InstanceId uuid.UUID
 
+func (id InstanceId) String() string {
+	return uuid.UUID(id).String()
+}
+
 type Instance interface {
 	GetId() InstanceId
 
