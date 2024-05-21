@@ -6,8 +6,10 @@ import (
 	"github.com/google/uuid"
 )
 
+type InstanceId uuid.UUID
+
 type Instance interface {
-	GetId() uuid.UUID
+	GetId() InstanceId
 
 	Start(participant uuid.UUID, startTime time.Time)
 	Trace(participant uuid.UUID, timestamp time.Time)
@@ -20,14 +22,14 @@ type trace struct {
 }
 
 type instance struct {
-	id             uuid.UUID
-	workflow       uuid.UUID
+	id             InstanceId
+	workflow       WorkflowId
 	startTime      time.Time
 	completionTime time.Time
 	traces         []trace
 }
 
-func (i *instance) GetId() uuid.UUID {
+func (i *instance) GetId() InstanceId {
 	return i.id
 }
 
@@ -50,8 +52,8 @@ func NewInstance(workflowId uuid.UUID) Instance {
 	uuidVal, _ := uuid.NewRandom()
 
 	instance := instance{
-		id:       uuidVal,
-		workflow: workflowId,
+		id:       InstanceId(uuidVal),
+		workflow: WorkflowId(workflowId),
 		traces:   make([]trace, 10),
 	}
 
