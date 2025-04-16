@@ -1,12 +1,14 @@
 package domain
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type InstanceId uuid.UUID
+type Timestamp *time.Time
 
 func (id InstanceId) String() string {
 	return uuid.UUID(id).String()
@@ -15,21 +17,21 @@ func (id InstanceId) String() string {
 type Instance interface {
 	GetId() InstanceId
 
-	Start(participant uuid.UUID, startTime time.Time)
-	Trace(participant uuid.UUID, timestamp time.Time)
-	Complete(participant uuid.UUID, completionTime time.Time)
+	Start(participant uuid.UUID, startTime time.Time) error
+	Trace(participant uuid.UUID, timestamp time.Time) error
+	Complete(participant uuid.UUID, completionTime time.Time) error
 }
 
 type trace struct {
 	participant uuid.UUID
-	traceTime   time.Time
+	traceTime   Timestamp
 }
 
 type instance struct {
 	id             InstanceId
 	workflow       WorkflowId
-	startTime      time.Time
-	completionTime time.Time
+	startTime      Timestamp
+	completionTime Timestamp
 	traces         []trace
 }
 
@@ -37,19 +39,37 @@ func (i *instance) GetId() InstanceId {
 	return i.id
 }
 
-func (i *instance) Start(participant uuid.UUID, startTime time.Time) {
-	i.startTime = startTime
+func (i *instance) Start(participant uuid.UUID, startTime time.Time) error {
+	if i.startTime != nil {
+		return fmt.Errorf("Instance %v is already started", i.id)
+	}
+	if i.completionTime != nil {
+		return fmt.Errorf("Instance %v is already completed", i.id)
+	}
+	i.startTime = Timestamp(&startTime)
+	return nil
 }
 
-func (i *instance) Complete(participant uuid.UUID, completionTime time.Time) {
-	i.completionTime = completionTime
+func (i *instance) Complete(participant uuid.UUID, completionTime time.Time) error {
+	if i.startTime != nil {
+		return fmt.Errorf("Instance %v is not started yet", i.id)
+	}
+	if i.completionTime != nil {
+		return fmt.Errorf("Instance %v is already completed", i.id)
+	}
+	i.completionTime = Timestamp(&completionTime)
+	return nil
 }
 
-func (i *instance) Trace(participant uuid.UUID, timestamp time.Time) {
+func (i *instance) Trace(participant uuid.UUID, timestamp time.Time) error {
+	if i.startTime != nil {
+		return fmt.Errorf("Instance %v is not started yet", i.id)
+	}
 	i.traces = append(i.traces, trace{
 		participant: participant,
-		traceTime:   timestamp,
+		traceTime:   Timestamp(&timestamp),
 	})
+	return nil
 }
 
 func NewInstance(workflowId uuid.UUID) Instance {
