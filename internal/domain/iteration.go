@@ -7,15 +7,15 @@ import (
 	"github.com/google/uuid"
 )
 
-type InstanceId uuid.UUID
+type IterationId uuid.UUID
 type Timestamp *time.Time
 
-func (id InstanceId) String() string {
+func (id IterationId) String() string {
 	return uuid.UUID(id).String()
 }
 
-type Instance interface {
-	GetId() InstanceId
+type Iteration interface {
+	GetId() IterationId
 
 	Start(participant uuid.UUID, startTime time.Time) error
 	Trace(participant uuid.UUID, timestamp time.Time) error
@@ -27,43 +27,43 @@ type trace struct {
 	traceTime   Timestamp
 }
 
-type instance struct {
-	id             InstanceId
+type iteration struct {
+	id             IterationId
 	workflow       WorkflowId
 	startTime      Timestamp
 	completionTime Timestamp
 	traces         []trace
 }
 
-func (i *instance) GetId() InstanceId {
+func (i *iteration) GetId() IterationId {
 	return i.id
 }
 
-func (i *instance) Start(participant uuid.UUID, startTime time.Time) error {
+func (i *iteration) Start(participant uuid.UUID, startTime time.Time) error {
 	if i.startTime != nil {
-		return fmt.Errorf("Instance %v is already started", i.id)
+		return fmt.Errorf("Iteration %v is already started", i.id)
 	}
 	if i.completionTime != nil {
-		return fmt.Errorf("Instance %v is already completed", i.id)
+		return fmt.Errorf("Iteration %v is already completed", i.id)
 	}
 	i.startTime = Timestamp(&startTime)
 	return nil
 }
 
-func (i *instance) Complete(participant uuid.UUID, completionTime time.Time) error {
+func (i *iteration) Complete(participant uuid.UUID, completionTime time.Time) error {
 	if i.startTime != nil {
-		return fmt.Errorf("Instance %v is not started yet", i.id)
+		return fmt.Errorf("Iteration %v is not started yet", i.id)
 	}
 	if i.completionTime != nil {
-		return fmt.Errorf("Instance %v is already completed", i.id)
+		return fmt.Errorf("Iteration %v is already completed", i.id)
 	}
 	i.completionTime = Timestamp(&completionTime)
 	return nil
 }
 
-func (i *instance) Trace(participant uuid.UUID, timestamp time.Time) error {
+func (i *iteration) Trace(participant uuid.UUID, timestamp time.Time) error {
 	if i.startTime != nil {
-		return fmt.Errorf("Instance %v is not started yet", i.id)
+		return fmt.Errorf("Iteration %v is not started yet", i.id)
 	}
 	i.traces = append(i.traces, trace{
 		participant: participant,
@@ -72,14 +72,14 @@ func (i *instance) Trace(participant uuid.UUID, timestamp time.Time) error {
 	return nil
 }
 
-func NewInstance(workflowId uuid.UUID) Instance {
+func NewIteration(workflowId uuid.UUID) Iteration {
 	uuidVal, _ := uuid.NewRandom()
 
-	instance := instance{
-		id:       InstanceId(uuidVal),
+	iteration := iteration{
+		id:       IterationId(uuidVal),
 		workflow: WorkflowId(workflowId),
 		traces:   make([]trace, 10),
 	}
 
-	return &instance
+	return &iteration
 }
