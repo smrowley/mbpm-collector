@@ -29,7 +29,7 @@ type trace struct {
 
 type iteration struct {
 	id             IterationId
-	workflow       WorkflowId
+	process       ProcessId
 	startTime      Timestamp
 	completionTime Timestamp
 	traces         []trace
@@ -72,12 +72,12 @@ func (i *iteration) Trace(participant uuid.UUID, timestamp time.Time) error {
 	return nil
 }
 
-func NewIteration(workflowId uuid.UUID) Iteration {
+func NewIteration(processId uuid.UUID) Iteration {
 	uuidVal, _ := uuid.NewRandom()
 
 	iteration := iteration{
 		id:       IterationId(uuidVal),
-		workflow: WorkflowId(workflowId),
+		process: ProcessId(processId),
 		traces:   make([]trace, 10),
 	}
 

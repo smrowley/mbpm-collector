@@ -9,23 +9,23 @@ import (
 	"mbpm-collector/internal/domain"
 )
 
-var workflow domain.Workflow
+var process domain.Process
 
 func getRoot(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("got / request\n")
-	io.WriteString(w, fmt.Sprintf("Workflow: %v\n", workflow.GetId()))
+	io.WriteString(w, fmt.Sprintf("Workflow: %v\n", process.GetId()))
 }
 
 func createInstance(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		
+
 	}
 	io.WriteString(w, "test")
 }
 
 func main() {
 	log.Println("Starting server")
-	workflow = domain.NewWorkflow("SDLC")
+	process = domain.NewProcess("SDLC")
 
 	mux := http.NewServeMux()
 

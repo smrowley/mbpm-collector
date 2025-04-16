@@ -4,32 +4,32 @@ import (
 	"github.com/google/uuid"
 )
 
-type WorkflowId uuid.UUID
+type ProcessId uuid.UUID
 
-func (id WorkflowId) String() string {
+func (id ProcessId) String() string {
 	return uuid.UUID(id).String()
 }
 
-type Workflow interface {
-	GetId() WorkflowId
+type Process interface {
+	GetId() ProcessId
 }
 
-type workflow struct {
-	id          WorkflowId
+type process struct {
+	id          ProcessId
 	description string
 }
 
-func (p *workflow) GetId() WorkflowId {
+func (p *process) GetId() ProcessId {
 	return p.id
 }
 
-func NewWorkflow(description string) Workflow {
+func NewProcess(description string) Process {
 	uuidVal, _ := uuid.NewRandom()
 
-	workflow := workflow{
-		id:          WorkflowId(uuidVal),
+	process := process{
+		id:          ProcessId(uuidVal),
 		description: description,
 	}
 
-	return &workflow
+	return &process
 }
