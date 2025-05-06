@@ -2,13 +2,9 @@ package domain
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 )
-
-type IterationId uuid.UUID
-type Timestamp *time.Time
 
 func (id IterationId) String() string {
 	return uuid.UUID(id).String()
@@ -17,19 +13,19 @@ func (id IterationId) String() string {
 type Iteration interface {
 	GetId() IterationId
 
-	Start(participant uuid.UUID, startTime time.Time) error
-	Trace(participant uuid.UUID, timestamp time.Time) error
-	Complete(participant uuid.UUID, completionTime time.Time) error
+	Start(participant ParticipantId, startTime Timestamp) error
+	Trace(participant ParticipantId, timestamp Timestamp) error
+	Complete(participant ParticipantId, completionTime Timestamp) error
 }
 
 type trace struct {
-	participant uuid.UUID
+	participant ParticipantId
 	traceTime   Timestamp
 }
 
 type iteration struct {
 	id             IterationId
-	process       ProcessId
+	process        ProcessId
 	startTime      Timestamp
 	completionTime Timestamp
 	traces         []trace
@@ -39,46 +35,46 @@ func (i *iteration) GetId() IterationId {
 	return i.id
 }
 
-func (i *iteration) Start(participant uuid.UUID, startTime time.Time) error {
+func (i *iteration) Start(participant ParticipantId, startTime Timestamp) error {
 	if i.startTime != nil {
 		return fmt.Errorf("Iteration %v is already started", i.id)
 	}
 	if i.completionTime != nil {
 		return fmt.Errorf("Iteration %v is already completed", i.id)
 	}
-	i.startTime = Timestamp(&startTime)
+	i.startTime = startTime
 	return nil
 }
 
-func (i *iteration) Complete(participant uuid.UUID, completionTime time.Time) error {
+func (i *iteration) Complete(participant ParticipantId, completionTime Timestamp) error {
 	if i.startTime != nil {
 		return fmt.Errorf("Iteration %v is not started yet", i.id)
 	}
 	if i.completionTime != nil {
 		return fmt.Errorf("Iteration %v is already completed", i.id)
 	}
-	i.completionTime = Timestamp(&completionTime)
+	i.completionTime = completionTime
 	return nil
 }
 
-func (i *iteration) Trace(participant uuid.UUID, timestamp time.Time) error {
+func (i *iteration) Trace(participant ParticipantId, timestamp Timestamp) error {
 	if i.startTime != nil {
 		return fmt.Errorf("Iteration %v is not started yet", i.id)
 	}
 	i.traces = append(i.traces, trace{
 		participant: participant,
-		traceTime:   Timestamp(&timestamp),
+		traceTime:   timestamp,
 	})
 	return nil
 }
 
-func NewIteration(processId uuid.UUID) Iteration {
+func NewIteration(processId ProcessId) Iteration {
 	uuidVal, _ := uuid.NewRandom()
 
 	iteration := iteration{
-		id:       IterationId(uuidVal),
-		process: ProcessId(processId),
-		traces:   make([]trace, 10),
+		id:      IterationId(uuidVal),
+		process: processId,
+		traces:  make([]trace, 10),
 	}
 
 	return &iteration

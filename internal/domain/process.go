@@ -4,8 +4,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type ProcessId uuid.UUID
-
 func (id ProcessId) String() string {
 	return uuid.UUID(id).String()
 }
